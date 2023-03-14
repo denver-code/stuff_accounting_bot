@@ -1,5 +1,6 @@
 from aiogram import types, dispatcher, Dispatcher
 from bot.core.api import verify_token
+from bot.core.redis_db import set_user
 from bot.states.authorisation import AuthToken
 
 async def set_token_event(message: types.Message, state: dispatcher.FSMContext):
@@ -8,9 +9,18 @@ async def set_token_event(message: types.Message, state: dispatcher.FSMContext):
     await state.finish()
 
     if verify_token(message.text):
+       set_user(message.from_id,{"token":message.text})
        return await _message.edit_text('Welcome, mate!\nNow you\'re able to use all functions, use command /fetch to refresh your local profile.\nUse /help to get all other information')
 
     await _message.edit_text('Looks like your token are invalid, please try again.')    
+
+
+async def add_by_upc_event(message: types.Message, state: dispatcher.FSMContext):
+    _message = await message.answer('Thank you!\nLet me moment to check if we have information about this item.')
+
+
+    await _message.edit_text('Looks like your token are invalid, please try again.')    
+
 
 
 async def message_event(message: types.Message, state: dispatcher.FSMContext):

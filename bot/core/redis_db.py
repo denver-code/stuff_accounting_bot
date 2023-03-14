@@ -1,4 +1,5 @@
 import redis
+import json
 
 r = redis.Redis(
     host='localhost',
@@ -6,15 +7,22 @@ r = redis.Redis(
 ) 
 
 def get_user(id: str):
-    return {key.decode(): value.decode() for key, value in r.hgetall(id).items()}
+    # return {key.decode(): value.decode() for key, value in r.hgetall(id).items()}
+    dict_bytes = r.get(id)
+
+    dict_str = dict_bytes.decode('utf-8')
+
+    my_dict = json.loads(dict_str)
+
+    return my_dict
 
 
 def set_user(id: str, data: dict):
-    return r.hset(id, data)
+    r.set(id, bytes(json.dumps(data), "utf-8"))
 
 
 def is_token_exist(id: str):
-    data = {key.decode(): value.decode() for key, value in r.hgetall(id).items()}
+    data = get_user(id)
     if not data.get("token"):
         return False
     return data.get("token")

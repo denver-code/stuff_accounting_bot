@@ -1,3 +1,4 @@
+import json
 import requests
 from bot.core.config import settings
 
@@ -14,9 +15,6 @@ def get(url, auth_token=None):
 
 def verify_token(token):
     r = get(f"/api/v1/public/tools/verify", auth_token=token)
-    print(r)
-    print(r.status_code)
-    print(r.reason)
     if r.status_code != 200:
         return False
     return r
