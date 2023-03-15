@@ -4,8 +4,8 @@ import cv2
 import numpy as np
 from bot.core.api import get, verify_token
 from bot.core.barcode_reader import retval_code
-from bot.core.middlewares import auto_fetch
-from bot.core.redis_db import get_user, is_token_exist, set_user
+from bot.core.middlewares import auth_required, auto_fetch
+from bot.core.redis_db import get_user, is_token_exist, logout, set_user
 from bot.states.add import AddByUPC, AddByUPCPicture
 from bot.states.authorisation import AuthToken
 
@@ -32,6 +32,7 @@ async def add_by_upc_event(message: types.Message, state: dispatcher.FSMContext)
     await _message.edit_text(f"{_request.json()['title']} has been added successfully")
 
 
+@auth_required
 async def add_by_upc_picture_event(message: types.Message, state: dispatcher.FSMContext):
     await state.finish()
     _message = await message.answer('Thank you!\nLet me moment to parse data from picture')
@@ -50,10 +51,10 @@ async def add_by_upc_picture_event(message: types.Message, state: dispatcher.FSM
     if _request.status_code != 200:
         return await _message.edit_text('Looks like we can\'t get information about this item, please make sure you have a correct UPC') 
        
-    
     await _message.edit_text(f"{_request.json()['title']} has been added successfully")
 
 
+@auth_required
 @auto_fetch
 async def message_event(message: types.Message, state: dispatcher.FSMContext):
     _message = await message.answer('Hi!\nI\'ll check your request a soon as posible!')

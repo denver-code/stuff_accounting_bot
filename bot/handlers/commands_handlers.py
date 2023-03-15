@@ -1,7 +1,7 @@
 from aiogram import types, dispatcher, Dispatcher
 from bot.core.fetch import fetch
 from bot.core.middlewares import auth_required, auto_fetch
-from bot.core.redis_db import get_user, is_token_exist, set_user
+from bot.core.redis_db import get_user, is_token_exist, logout, set_user
 from bot.core.api import get, verify_token
 
 
@@ -61,9 +61,16 @@ async def add_new_event(message: types.Message, state: dispatcher.FSMContext):
     await message.answer('Please select method of creating:\nAlso just want to let you know that you cannot change item details created via UPC.', reply_markup=keyboard_markup)
 
 
+@auth_required
+async def logout_event(message: types.Message, state: dispatcher.FSMContext):
+    await message.answer('Thank you for being with us')
+    logout(str(message.from_id))
+
+
 def setup(dp: Dispatcher):
     dp.register_message_handler(start_event, commands=["start"], state='*')
     dp.register_message_handler(fetch_event, commands=["fetch"], state='*')
+    dp.register_message_handler(logout_event, commands=["logout", "logoff"], state='*')
     dp.register_message_handler(display_in_bot_profile_event, commands=["in-bot-profile"], state='*')
     dp.register_message_handler(my_collection_event, commands=["my", "collection"], state='*')
     dp.register_message_handler(add_new_event, commands=["add", "new", "create"], state='*')
