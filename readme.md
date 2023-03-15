@@ -1,4 +1,5 @@
 # StuffAccountig Bot-Cliet
+A bot-client for [Stuff Accouting Backend](https://github.com/denver-code/stuff_accounting_backend)
 # ▹ Run using docker #
 > [!NOTE]  
 > For start make sure you have docker installed on your machine.
