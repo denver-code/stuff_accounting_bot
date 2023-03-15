@@ -1,4 +1,4 @@
-# StuffAccountig Bot-Cliet
+# StuffAccountig Bot-Client
 A bot-client for [Stuff Accouting Backend](https://github.com/denver-code/stuff_accounting_backend)
 # ▹ Run using docker #
 > [!NOTE]  
