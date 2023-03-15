@@ -1,0 +1,6 @@
+version: '2'
+services:
+  stuffaccounting_bot:
+    build: .
+    volumes:
+      - .:/stuffaccounting_bot
