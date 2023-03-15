@@ -4,3 +4,14 @@ services:
     build: .
     volumes:
       - .:/stuffaccounting_bot
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:5-alpine
+    restart: on-failure
+    volumes:
+      - redis-data:/data
+
+volumes:
+  redis-data:
