@@ -19,3 +19,4 @@ async def ucp_code_callback_handler(callback_query: CallbackQuery):
 
 def setup(dp: Dispatcher):
     dp.register_callback_query_handler(token_auth_callback_handler, lambda c: c.data == "login_via_token")
+    dp.register_callback_query_handler(ucp_code_callback_handler, lambda c: c.data == "create_using_upc")
