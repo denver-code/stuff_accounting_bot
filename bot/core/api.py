@@ -4,7 +4,7 @@ from bot.core.config import settings
 
 
 def post(url, body=None, auth_token=None):
-    r = requests.post(f"{settings.SERVER_IP}{url}", data=body, headers={"Authorisation":auth_token})
+    r = requests.post(f"{settings.SERVER_IP}{url}", json=body, headers={"Authorisation":auth_token})
     return r
 
 

@@ -2,12 +2,14 @@ from io import BytesIO
 from aiogram import types, dispatcher, Dispatcher
 import cv2
 import numpy as np
-from bot.core.api import get, verify_token
+from bot.core.api import get, post, verify_token
 from bot.core.barcode_reader import retval_code
+from bot.core.email_validate import is_valid_email
+from bot.core.hash import sha256_encode
 from bot.core.middlewares import auth_required, auto_fetch
 from bot.core.redis_db import get_user, is_token_exist, logout, set_user
 from bot.states.add import AddByUPC, AddByUPCPicture
-from bot.states.authorisation import AuthToken
+from bot.states.authorisation import AuthToken, Registration
 
 
 async def set_token_event(message: types.Message, state: dispatcher.FSMContext):
@@ -74,8 +76,41 @@ You also can add new item using command /add")
     await _message.edit_text(f"Look's that you already have some stuff:\n- {_items}")
 
 
+async def email_registration_event(message: types.Message, state: dispatcher.FSMContext):
+    _message = await message.answer('Thank you!')
+    if not is_valid_email(message.text):
+        await message.delete()
+        return await _message.edit_text('Entered email are invalid, please try again.')    
+
+    async with state.proxy() as data:
+        data["email"] = message.text
+        data["message"] = _message
+        await message.delete()
+        await Registration.next()
+    await _message.edit_text('Fine! Now we need password.')
+
+async def password_registration_event(message: types.Message, state: dispatcher.FSMContext):
+    async with state.proxy() as data:
+        await message.delete()
+        _message = data["message"]
+        await _message.edit_text('Fabulous! Wait while we process everything.')
+        _result = post("/api/v1/public/authorisation/signup", body={
+            "email": data["email"],
+            "password": sha256_encode(message.text)
+        })
+        await state.finish()
+    if _result.status_code != 200:
+        return await _message.edit_text(f"Error: {_result.json()['detail']}")
+    _token = _result.json()["token"]
+    if verify_token(_token):
+       set_user(message.from_id, {"token":_token})
+       return await _message.edit_text('Welcome, mate!\nNow you\'re able to use all functions, use command /fetch to refresh your local profile.\nUse /help to get all other information')
+
+
 def setup(dp: Dispatcher):
     dp.register_message_handler(set_token_event, content_types=['text'], state=AuthToken.token)
+    dp.register_message_handler(email_registration_event, content_types=['text'], state=Registration.email)
+    dp.register_message_handler(password_registration_event, content_types=['text'], state=Registration.password)
     dp.register_message_handler(add_by_upc_event, content_types=['text'], state=AddByUPC.upc_code)
     dp.register_message_handler(add_by_upc_picture_event, content_types=['photo'], state=AddByUPCPicture.upc_picture)
     dp.register_message_handler(add_by_upc_picture_event, content_types=['photo'], state='*')
