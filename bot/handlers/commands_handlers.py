@@ -1,6 +1,6 @@
 from aiogram import types, dispatcher, Dispatcher
 from bot.core.fetch import fetch
-from bot.core.middlewares import auth_required
+from bot.core.middlewares import auth_required, auto_fetch
 from bot.core.redis_db import get_user, is_token_exist, set_user
 from bot.core.api import get, verify_token
 
@@ -30,6 +30,7 @@ async def fetch_event(message: types.Message, state: dispatcher.FSMContext):
 
 
 @auth_required
+@auto_fetch
 async def display_in_bot_profile_event(message: types.Message, state: dispatcher.FSMContext):
     _message = await message.answer('Please wait till we fetch your data.')
     user = get_user(message.from_id)
@@ -37,14 +38,15 @@ async def display_in_bot_profile_event(message: types.Message, state: dispatcher
 
 
 @auth_required
+@auto_fetch
 async def my_collection_event(message: types.Message, state: dispatcher.FSMContext):
     _message = await message.answer('Please wait till we get your data.')
     user = get_user(message.from_id)
     _saved = []
     for item in user["saved"]:
         _saved.append(item["title"])
-    _items = "\n".join(_saved)
-    await _message.edit_text(f"Your Collection:\n{_items}")
+    _items = "\n\n- ".join(_saved)
+    await _message.edit_text(f"Your Collection:\n- {_items}")
 
 
 @auth_required

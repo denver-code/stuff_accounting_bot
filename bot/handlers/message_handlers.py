@@ -4,6 +4,7 @@ import cv2
 import numpy as np
 from bot.core.api import get, verify_token
 from bot.core.barcode_reader import retval_code
+from bot.core.middlewares import auto_fetch
 from bot.core.redis_db import get_user, is_token_exist, set_user
 from bot.states.add import AddByUPC, AddByUPCPicture
 from bot.states.authorisation import AuthToken
@@ -53,6 +54,7 @@ async def add_by_upc_picture_event(message: types.Message, state: dispatcher.FSM
     await _message.edit_text(f"{_request.json()['title']} has been added successfully")
 
 
+@auto_fetch
 async def message_event(message: types.Message, state: dispatcher.FSMContext):
     _message = await message.answer('Hi!\nI\'ll check your request a soon as posible!')
     # 
@@ -67,12 +69,13 @@ You also can add new item using command /add")
     _result = []
     for _i in result:
         _result.append(_i["title"])
-    _items = "\n".join(_result)
-    await _message.edit_text(f"Look's that you already have some stuff:\n{_items}")
+    _items = "\n\n- ".join(_result)
+    await _message.edit_text(f"Look's that you already have some stuff:\n- {_items}")
 
 
 def setup(dp: Dispatcher):
     dp.register_message_handler(set_token_event, content_types=['text'], state=AuthToken.token)
     dp.register_message_handler(add_by_upc_event, content_types=['text'], state=AddByUPC.upc_code)
     dp.register_message_handler(add_by_upc_picture_event, content_types=['photo'], state=AddByUPCPicture.upc_picture)
+    dp.register_message_handler(add_by_upc_picture_event, content_types=['photo'], state='*')
     dp.register_message_handler(message_event, content_types=['text'], state='*')

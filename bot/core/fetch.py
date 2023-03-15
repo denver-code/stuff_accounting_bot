@@ -1,7 +1,5 @@
-from aiogram import types, dispatcher, Dispatcher
-from bot.core.middlewares import auth_required
-from bot.core.redis_db import get_user, is_token_exist, set_user
-from bot.core.api import get, verify_token
+from bot.core.redis_db import is_token_exist, set_user
+from bot.core.api import get
 
 
 
