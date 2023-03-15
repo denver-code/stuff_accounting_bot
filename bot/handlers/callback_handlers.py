@@ -3,7 +3,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Command, Text
 from aiogram.types import CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup
 from bot.states.authorisation import AuthToken
-from bot.states.add import AddByUPC
+from bot.states.add import AddByUPC, AddByUPCPicture
 
 async def token_auth_callback_handler(callback_query: CallbackQuery):
     await AuthToken.token.set()
@@ -17,6 +17,13 @@ async def ucp_code_callback_handler(callback_query: CallbackQuery):
     await callback_query.message.delete()
 
 
+async def ucp_code_picture_callback_handler(callback_query: CallbackQuery):
+    await AddByUPCPicture.upc_picture.set()
+    await callback_query.message.answer("Please send picture of your UPC barcode.\nPlease note that we could not find your product, in that case you will need create item by yourself")
+    await callback_query.message.delete()
+
+
 def setup(dp: Dispatcher):
     dp.register_callback_query_handler(token_auth_callback_handler, lambda c: c.data == "login_via_token")
     dp.register_callback_query_handler(ucp_code_callback_handler, lambda c: c.data == "create_using_upc")
+    dp.register_callback_query_handler(ucp_code_picture_callback_handler, lambda c: c.data == "create_using_upc_picture")
