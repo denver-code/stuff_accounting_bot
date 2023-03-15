@@ -6,3 +6,7 @@ class AuthToken(StatesGroup):
 class Registration(StatesGroup):
     email = State()
     password = State()
+
+class Authorisation(StatesGroup):
+    email = State()
+    password = State()
